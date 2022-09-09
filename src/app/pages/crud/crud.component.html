@@ -1,0 +1,59 @@
+<div class="text-center">
+        
+    <h1 class="titulo"><img src="../assets/images/logomarvel.png" width="250" height="80" alt=""> {{title}}</h1>
+
+</div>
+
+
+      
+        <div class="container">
+          <div class="row">
+            <div class="col -md-8">
+              <ul class="list-group">
+                <li *ngFor="let hero of heroArray "
+                class="list-group-item list-group-item-action"
+                (click)="openForEdit(hero)"
+                [class.active]="hero === selectedHero"
+                >
+                <span class="badge badge-primary">{{hero.id}}</span>  {{hero.name}}
+                </li>
+              </ul>
+    
+              <div class="card pull-right" >
+                <div class="card-body">
+                  <div class="card-title">
+                    Insert, edit or delete a Hero
+                  </div>
+                  <div [formGroup]="form_hero">
+                  <div class="form-group">
+                    <input type="text"formControlName="hero_id" formGroupName="form_hero"  placeholder="Insert Name" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" formControlName="hero_name" formGroupName="form_hero" placeholder="Insert Id" class="form-control">
+                  </div>
+                </div>
+
+                  <button class="btn btn-primary" (click)="addOrEdit()">
+                    Submit
+                  </button>
+                  <button
+                    class="btn btn-danger"
+                    (click)="delete()"
+                    >
+                    delete
+                  </button>
+                  <button
+                    class="btn btn-success"
+                    (click)="cancel()"
+                    >
+                    edit
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col -md-4">
+              
+            </div>
+          </div>
+        </div>
