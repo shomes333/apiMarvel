@@ -5,7 +5,7 @@ import { empty, Observable } from 'rxjs';
 import { MarvelService } from 'src/app/servives/marvel.service';
 import { SuperHeroes } from 'src/app/models/heroes';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-
+import { heroArray } from 'src/app/models/hero.array';
 
 @Component({
   selector: 'app-crud',
@@ -16,9 +16,11 @@ export class CRUDComponent implements OnInit {
 
   title='CRUD';
   form_hero!: FormGroup;
+  characters?:Observable<any>;
+  selectedHero: SuperHeroes = new SuperHeroes(0, '');
+  heroArray = heroArray;
 
   constructor(private marvelSvc:MarvelService, private router:Router, private fb: FormBuilder) { }
-  characters?:Observable<any>;
 
   ngOnInit(): void{
     this.getAllCharacters();
@@ -27,57 +29,63 @@ export class CRUDComponent implements OnInit {
       hero_name: ['', Validators.required]
     });
   }
-  getAllCharacters(){
+
+  getAllCharacters() {
     this.characters = this.marvelSvc.getCRUD();
   }
-  getCharacter(id:string){
+
+  getCharacter(id:string) {
     console.log(id);
   }
-  heroArray: SuperHeroes[] = [
-    {id: 1011334, name: "3-D Man "},
-    {id: 1017100, name: "A-Bomb (HAS) "},
-    {id: 1009144, name: "A.I.M. "},
-    {id: 1010699, name: "Aaron Stack "},
-    {id: 1009146, name: "Abomination (Emil Blonsky) "},
-    {id: 1016823, name: "Abomination (Ultimate) "},
-    {id: 1009148, name: "Absorbing Man "},
-    {id: 1009149, name: "Abyss "},
-    {id: 1010903, name: "Abyss (Age of Apocalypse) "},
-    {id: 1011266, name: "Adam Destine "},
-    {id: 1010354, name: "Adam Warlock "},
-    {id: 1010846, name: "Aegis (Trey Rollins) "},
-    {id: 1017851, name: "Aero (Aero) "},
-    {id: 1012717, name: "Agatha Harkness "},
-    {id: 1011297, name: "Agent Brand "},
-    {id: 1011031, name: "Agent X (Nijo) "},
-    {id: 1009150, name: "Agent Zero "},
-    {id: 1011198, name: "Agents of Atlas "},
-    {id: 1011175, name: "Aginar "},
-    {id: 1011136, name: "Air-Walker (Gabriel Lan) "},
-  ];
-
-  selectedHero: SuperHeroes = new SuperHeroes();
 
   openForEdit(hero: SuperHeroes) {
     this.selectedHero = hero;
+    this.setHeroInForm(); 
   }
 
-  addOrEdit(){
-    console.log(this.form_hero)
-    if (this.selectedHero !== new SuperHeroes){
-    this.heroArray.push(this.selectedHero);
+  addOrEdit() {
+    if (!this.areInputsEmpty()) {
+      let oldHeroId = this.selectedHero.id;
+      if (!oldHeroId) {
+        this.heroArray.push(new SuperHeroes(this.form_hero.get('hero_id')?.value, this.form_hero.get('hero_name')?.value))
+      }
+      let index = this.heroArray.findIndex(hero => oldHeroId === hero.id);
+      this.setHeroSelected();
+      this.heroArray[index] = this.selectedHero;
+      this.clearForm();
     }
-    this.selectedHero = new SuperHeroes();
-
-    
   }
+
   delete() {
     if(confirm('Are you sure you want to delete it?')){
     this.heroArray = this.heroArray.filter(x => x != this.selectedHero);
-    this.selectedHero = new SuperHeroes();
+    this.selectedHero = new SuperHeroes(0, '');
   }
 }
-  cancel(){
-    this.selectedHero = new SuperHeroes();
+
+  cancel() {
+    this.selectedHero = new SuperHeroes(0, '');
   }
+
+  setHeroInForm() {
+    this.form_hero.get("hero_id")?.setValue(this.selectedHero.id);
+    this.form_hero.get("hero_name")?.setValue(this.selectedHero.name);
+  }
+
+  areInputsEmpty(): boolean {
+    let id = this.form_hero.get('hero_id')?.value;
+    let name =  this.form_hero.get('hero_name')?.value;
+    return !(id || name);
+  }
+
+  setHeroSelected() {
+    this.selectedHero.id = this.form_hero.get('hero_id')?.value;
+    this.selectedHero.name = this.form_hero.get('hero_name')?.value;
+  }
+
+  clearForm() {
+    this.form_hero.reset();
+    this.selectedHero = new SuperHeroes(0, '');
+  }
+  
 }
